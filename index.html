@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indie SaaS Pricing Calculator</title>
+<meta name="description" content="Side-by-side pricing math for BYOK vs bundled vs hybrid SaaS pricing. Compare gross margin, breakeven users, and churn-adjusted LTV.">
+<meta property="og:title" content="Indie SaaS Pricing Calculator">
+<meta property="og:description" content="Compare BYOK, bundled, and hybrid SaaS pricing with real margins, churn-adjusted LTV, and breakeven math.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://0xelitesystem.github.io/indie-saas-pricing-calculator/og.png">
+<meta property="og:url" content="https://0xelitesystem.github.io/indie-saas-pricing-calculator/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Indie SaaS Pricing Calculator">
+<meta name="twitter:description" content="Compare BYOK, bundled, and hybrid SaaS pricing.">
+<meta name="twitter:image" content="https://0xelitesystem.github.io/indie-saas-pricing-calculator/og.png">
+<style>
+:root {
+  --paper: #f0e6c8;
+  --paper-2: #e8dcb8;
+  --grid: #c8d8c0;
+  --grid-faint: #d8e2cf;
+  --ink: #1a1a14;
+  --ink-soft: #4a4a3d;
+  --ink-faint: #7a7560;
+  --rule: #b8a878;
+  --rule-soft: #d4c894;
+  --carmine: #a82828;
+  --carmine-soft: #c84848;
+  --olive: #5a6a30;
+  --gold: #a88528;
+  --serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --mono: 'Courier Prime', 'Courier New', Courier, monospace;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+[data-theme="dark"] {
+  --paper: #1f1c14;
+  --paper-2: #25221a;
+  --grid: #2e3424;
+  --grid-faint: #2a2e22;
+  --ink: #f0e6c8;
+  --ink-soft: #c8b894;
+  --ink-faint: #8a8268;
+  --rule: #5a4f30;
+  --rule-soft: #4a4128;
+  --carmine: #d86060;
+  --olive: #94a062;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  background-image:
+    linear-gradient(var(--grid-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-faint) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+.wrap { max-width: 1280px; margin: 0 auto; padding: 28px 28px 80px; }
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 18px;
+  margin-bottom: 26px;
+  border-bottom: 2px solid var(--ink);
+  position: relative;
+}
+header::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0; right: 0;
+  border-bottom: 1px solid var(--ink);
+}
+.brand-block { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+.brand-mark {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.brand-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+}
+.ledger-mark {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--carmine);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--carmine);
+  padding: 3px 10px;
+  border-radius: 2px;
+}
+.theme-toggle {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  padding: 6px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  font-weight: 700;
+}
+.theme-toggle:hover { background: var(--ink); color: var(--paper); }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 26px;
+}
+@media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  position: relative;
+  padding: 0;
+}
+.card::before {
+  content: "";
+  position: absolute;
+  top: 6px; left: 6px; right: 6px; bottom: 6px;
+  border: 1px solid var(--rule-soft);
+  pointer-events: none;
+}
+.card-head {
+  padding: 18px 24px 12px;
+  border-bottom: 1px dashed var(--rule);
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.card-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--carmine);
+  flex-shrink: 0;
+}
+.card-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.card-sub {
+  display: block;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  font-weight: 400;
+  margin-top: 2px;
+  font-style: italic;
+}
+.card-body { padding: 18px 24px 24px; }
+
+label.field {
+  display: block;
+  margin-bottom: 14px;
+}
+label.field > .label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+label.field .label-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  font-weight: 700;
+}
+label.field .label-hint {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--ink-faint);
+  font-style: italic;
+}
+label.field input[type="number"],
+label.field input[type="text"] {
+  width: 100%;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  padding: 9px 12px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink);
+  border-radius: 0;
+}
+label.field input:focus {
+  outline: none;
+  border-color: var(--ink);
+  background: var(--paper);
+}
+
+.section-divider {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-soft);
+  margin: 22px 0 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px dotted var(--rule);
+  font-weight: 700;
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border: 1.5px solid var(--ink);
+}
+@media (max-width: 700px) { .compare { grid-template-columns: 1fr; } }
+
+.col {
+  padding: 22px 18px;
+  border-right: 1px solid var(--rule);
+  background: var(--paper);
+  position: relative;
+}
+.col:last-child { border-right: none; }
+@media (max-width: 700px) {
+  .col { border-right: none; border-bottom: 1px solid var(--rule); }
+}
+.col-head {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.col-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+.col-tag.byok { background: var(--olive); color: var(--paper); }
+.col-tag.bundled { background: var(--carmine); color: var(--paper); }
+.col-tag.hybrid { background: var(--gold); color: var(--paper); }
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px dotted var(--rule-soft);
+  font-size: 13px;
+}
+.metric:last-child { border-bottom: none; }
+.metric-label {
+  font-family: var(--sans);
+  color: var(--ink-soft);
+  font-size: 12.5px;
+}
+.metric-val {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.metric-val.good { color: var(--olive); }
+.metric-val.warn { color: var(--gold); }
+.metric-val.bad { color: var(--carmine); }
+.metric.headline {
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 6px;
+  padding: 10px 0;
+}
+.metric.headline .metric-label {
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink);
+}
+.metric.headline .metric-val { font-size: 20px; }
+
+.verdict {
+  background: var(--paper-2);
+  border: 1.5px solid var(--ink);
+  padding: 16px 20px;
+  margin-top: 22px;
+  position: relative;
+}
+.verdict::before {
+  content: "VERDICT";
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: var(--paper);
+  padding: 0 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--carmine);
+  font-weight: 700;
+}
+.verdict-text {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.verdict-text strong { font-weight: 700; }
+
+.actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 16px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 700;
+  border-radius: 0;
+}
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn.primary:hover { background: var(--carmine); border-color: var(--carmine); }
+
+.assumptions {
+  margin-top: 26px;
+  padding: 16px 20px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  font-family: var(--serif);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+.assumptions strong { font-style: normal; color: var(--ink); }
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+footer a { color: var(--carmine); text-decoration: none; font-weight: 700; }
+footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body data-theme="light">
+<div class="wrap">
+  <header>
+    <div class="brand-block">
+      <div>
+        <div class="brand-mark">Indie SaaS Pricing</div>
+        <div class="brand-sub">Calculator &middot; BYOK vs Bundled vs Hybrid &middot; Margins Worked Out</div>
+      </div>
+      <div class="ledger-mark">Ledger Ed.</div>
+    </div>
+    <button class="theme-toggle" id="theme-toggle">Dark</button>
+  </header>
+
+  <div class="grid">
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">i.</div>
+        <div>
+          <h2 class="card-title">Inputs</h2>
+          <span class="card-sub">Real numbers in, real margins out.</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="section-divider">Product cost structure</div>
+        <label class="field">
+          <span class="label-row">
+            <span class="label-name">API cost per active user / month (USD)</span>
+            <span class="label-hint">e.g. 0.85</span>
+          </span>
+          <input type="number" id="api_cost" min="0" step="0.01" value="0.85">
+        </label>
+        <label class="field">
+          <span class="label-row">
+            <span class="label-name">Infrastructure cost / user / month (USD)</span>
+            <span class="label-hint">hosting, storage, bandwidth</span>
+          </span>
+          <input type="number" id="infra_cost" min="0" step="0.01" value="0.12">
+        </label>
+        <label class="field">
+          <span class="label-row">
+            <span class="label-name">Payment processor fee (%)</span>
+            <span class="label-hint">stripe ~2.9</span>
+          </span>
+          <input type="number" id="processor_fee" min="0" max="100" step="0.1" value="2.9">
+        </label>
+
+        <div class="section-divider">Pricing assumptions</div>
+        <label class="field">
+          <span class="label-row">
+            <span class="label-name">BYOK price (USD / month)</span>
+            <span class="label-hint">one-time or subscription</span>
+          </span>
+          <input type="number" id="byok_price" min="0" step="1" value="9">
+        </label>
+        <label class="field">
+          <span class="label-row">
+            <span class="label-name">Bundled price (USD / month)</span>
+            <span class="label-hint">includes API costs</span>
+          </span>
+          <input type="number" id="bundled_price" min="0" step="1" value="29">
+        </label>
+        <label class="field">
+          <span class="label-row">
+            <span class="label-name">Hybrid base price (USD / month)</span>
+            <span class="label-hint">small base + BYOK API</span>
+          </span>
+          <input type="number" id="hybrid_price" min="0" step="1" value="14">
+        </label>
+
+        <div class="section-divider">Churn and LTV</div>
+        <label class="field">
+          <span class="label-row">
+            <span class="label-name">Monthly churn rate (%)</span>
+            <span class="label-hint">BYOK typically 2-5%, bundled 5-8%</span>
+          </span>
+          <input type="number" id="churn_rate" min="0" max="100" step="0.1" value="4">
+        </label>
+        <label class="field">
+          <span class="label-row">
+            <span class="label-name">Customer acquisition cost (USD)</span>
+            <span class="label-hint">paid + organic blended</span>
+          </span>
+          <input type="number" id="cac" min="0" step="1" value="35">
+        </label>
+
+        <div class="actions">
+          <button class="btn primary" id="calc-btn">Calculate</button>
+          <button class="btn" id="example-btn">Load example: $50K MRR target</button>
+          <button class="btn" id="reset-btn">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT CARD -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-num">ii.</div>
+        <div>
+          <h2 class="card-title">Results</h2>
+          <span class="card-sub">Per-user economics across three pricing models.</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="compare" id="compare">
+          <div class="col">
+            <h3 class="col-head">BYOK</h3>
+            <span class="col-tag byok">Lean</span>
+            <div class="metric headline">
+              <span class="metric-label">Gross margin</span>
+              <span class="metric-val good" id="byok_margin">88%</span>
+            </div>
+            <div class="metric"><span class="metric-label">Revenue / user</span><span class="metric-val" id="byok_rev">$9.00</span></div>
+            <div class="metric"><span class="metric-label">COGS / user</span><span class="metric-val" id="byok_cogs">$0.38</span></div>
+            <div class="metric"><span class="metric-label">Net / user</span><span class="metric-val good" id="byok_net">$8.36</span></div>
+            <div class="metric"><span class="metric-label">LTV (churn-adjusted)</span><span class="metric-val" id="byok_ltv">$209</span></div>
+            <div class="metric"><span class="metric-label">LTV / CAC</span><span class="metric-val good" id="byok_ltvcac">5.97x</span></div>
+            <div class="metric"><span class="metric-label">Users for $50K MRR</span><span class="metric-val" id="byok_users">5,556</span></div>
+          </div>
+          <div class="col">
+            <h3 class="col-head">Bundled</h3>
+            <span class="col-tag bundled">Familiar</span>
+            <div class="metric headline">
+              <span class="metric-label">Gross margin</span>
+              <span class="metric-val" id="bundled_margin">87%</span>
+            </div>
+            <div class="metric"><span class="metric-label">Revenue / user</span><span class="metric-val" id="bundled_rev">$29.00</span></div>
+            <div class="metric"><span class="metric-label">COGS / user</span><span class="metric-val" id="bundled_cogs">$1.81</span></div>
+            <div class="metric"><span class="metric-label">Net / user</span><span class="metric-val good" id="bundled_net">$26.35</span></div>
+            <div class="metric"><span class="metric-label">LTV (churn-adjusted)</span><span class="metric-val" id="bundled_ltv">$329</span></div>
+            <div class="metric"><span class="metric-label">LTV / CAC</span><span class="metric-val good" id="bundled_ltvcac">9.40x</span></div>
+            <div class="metric"><span class="metric-label">Users for $50K MRR</span><span class="metric-val" id="bundled_users">1,724</span></div>
+          </div>
+          <div class="col">
+            <h3 class="col-head">Hybrid</h3>
+            <span class="col-tag hybrid">Mixed</span>
+            <div class="metric headline">
+              <span class="metric-label">Gross margin</span>
+              <span class="metric-val" id="hybrid_margin">91%</span>
+            </div>
+            <div class="metric"><span class="metric-label">Revenue / user</span><span class="metric-val" id="hybrid_rev">$14.00</span></div>
+            <div class="metric"><span class="metric-label">COGS / user</span><span class="metric-val" id="hybrid_cogs">$0.53</span></div>
+            <div class="metric"><span class="metric-label">Net / user</span><span class="metric-val good" id="hybrid_net">$13.06</span></div>
+            <div class="metric"><span class="metric-label">LTV (churn-adjusted)</span><span class="metric-val" id="hybrid_ltv">$326</span></div>
+            <div class="metric"><span class="metric-label">LTV / CAC</span><span class="metric-val good" id="hybrid_ltvcac">9.33x</span></div>
+            <div class="metric"><span class="metric-label">Users for $50K MRR</span><span class="metric-val" id="hybrid_users">3,571</span></div>
+          </div>
+        </div>
+
+        <div class="verdict">
+          <div class="verdict-text" id="verdict">
+            <strong>Bundled wins on revenue per user; BYOK wins on margin and trust.</strong> Hybrid sits in the middle, slightly ahead on margin because the API cost is the customer's. Pick BYOK if onboarding friction is manageable. Pick bundled if your audience does not want to think about API keys. Hybrid is rarely the wrong call; rarely the strongly right one either.
+          </div>
+        </div>
+
+        <div class="assumptions">
+          <strong>Notes on the math.</strong> Gross margin = (revenue minus COGS) over revenue, where COGS = API cost + infrastructure + processor fee. LTV = (net per user) / (monthly churn rate). Users for target MRR = target / net-per-user, rounded up. Hybrid assumes the base price covers infrastructure with the user paying API cost directly (so the only COGS on you is the base-cost portion + processor fee). All numbers are per-customer; aggregate revenue, taxes, and shared overhead are out of scope here. This is a planning calculator, not an accounting system.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Built by <a href="https://github.com/0xelitesystem" target="_blank" rel="noopener">0xelitesystem</a> &middot; Pairs with <a href="https://github.com/0xelitesystem/breakeven-runway-calculator" target="_blank" rel="noopener">breakeven-runway-calculator</a> and <a href="https://github.com/0xelitesystem/indie-saas-financial-baseline" target="_blank" rel="noopener">indie-saas-financial-baseline</a>
+  </footer>
+</div>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const num = (id) => parseFloat($(id).value) || 0;
+
+function fmt(n, decimals) {
+  decimals = decimals == null ? 2 : decimals;
+  if (!isFinite(n)) return '\u2014';
+  if (Math.abs(n) >= 1000) return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  return n.toFixed(decimals);
+}
+function fmtUSD(n) { return '$' + fmt(n, 2); }
+function fmtPct(n) { return fmt(n, 0) + '%'; }
+function fmtMult(n) { return fmt(n, 2) + 'x'; }
+function fmtInt(n) {
+  if (!isFinite(n)) return '\u2014';
+  return Math.ceil(n).toLocaleString('en-US');
+}
+
+function classifyMargin(p) {
+  if (p >= 80) return 'good';
+  if (p >= 60) return 'warn';
+  return 'bad';
+}
+function classifyLTVCAC(r) {
+  if (r >= 3) return 'good';
+  if (r >= 1.5) return 'warn';
+  return 'bad';
+}
+
+function calculate() {
+  const api = num('api_cost');
+  const infra = num('infra_cost');
+  const procPct = num('processor_fee') / 100;
+  const churn = num('churn_rate') / 100;
+  const cac = num('cac');
+  const TARGET_MRR = 50000;
+
+  const models = {
+    byok: { price: num('byok_price'), includesAPI: false, includesInfra: false },
+    bundled: { price: num('bundled_price'), includesAPI: true, includesInfra: true },
+    hybrid: { price: num('hybrid_price'), includesAPI: false, includesInfra: true }
+  };
+
+  const results = {};
+  for (const [key, m] of Object.entries(models)) {
+    const rev = m.price;
+    const apiPart = m.includesAPI ? api : 0;
+    const infraPart = m.includesInfra ? infra : 0;
+    const procFee = rev * procPct;
+    const cogs = apiPart + infraPart + procFee;
+    const net = rev - cogs;
+    const margin = rev > 0 ? (net / rev) * 100 : 0;
+    const ltv = churn > 0 ? net / churn : 0;
+    const ltvcac = cac > 0 ? ltv / cac : 0;
+    const usersForTarget = net > 0 ? TARGET_MRR / net : Infinity;
+    results[key] = { rev, cogs, net, margin, ltv, ltvcac, usersForTarget };
+  }
+
+  for (const [key, r] of Object.entries(results)) {
+    $(key + '_rev').textContent = fmtUSD(r.rev);
+    $(key + '_cogs').textContent = fmtUSD(r.cogs);
+    $(key + '_net').textContent = fmtUSD(r.net);
+    $(key + '_margin').textContent = fmtPct(r.margin);
+    $(key + '_margin').className = 'metric-val ' + classifyMargin(r.margin);
+    $(key + '_ltv').textContent = fmtUSD(r.ltv);
+    $(key + '_ltvcac').textContent = isFinite(r.ltvcac) ? fmtMult(r.ltvcac) : '\u2014';
+    $(key + '_ltvcac').className = 'metric-val ' + classifyLTVCAC(r.ltvcac);
+    $(key + '_users').textContent = fmtInt(r.usersForTarget);
+  }
+
+  buildVerdict(results);
+}
+
+function buildVerdict(r) {
+  const lines = [];
+  const margins = [['BYOK', r.byok.margin], ['Bundled', r.bundled.margin], ['Hybrid', r.hybrid.margin]];
+  margins.sort((a, b) => b[1] - a[1]);
+  const ltvs = [['BYOK', r.byok.ltv], ['Bundled', r.bundled.ltv], ['Hybrid', r.hybrid.ltv]];
+  ltvs.sort((a, b) => b[1] - a[1]);
+  const users = [['BYOK', r.byok.usersForTarget], ['Bundled', r.bundled.usersForTarget], ['Hybrid', r.hybrid.usersForTarget]];
+  users.sort((a, b) => a[1] - b[1]);
+
+  lines.push('<strong>' + margins[0][0] + ' wins on margin (' + fmtPct(margins[0][1]) + ').</strong>');
+  lines.push('<strong>' + ltvs[0][0] + ' wins on lifetime value ($' + fmt(ltvs[0][1], 0) + ' per customer).</strong>');
+  lines.push('<strong>' + users[0][0] + ' needs the fewest customers (' + fmtInt(users[0][1]) + ') for $50K MRR.</strong>');
+
+  const negativeMargin = Object.entries(r).filter(([_, x]) => x.margin < 50);
+  if (negativeMargin.length) {
+    const names = negativeMargin.map(([k]) => k).join(', ');
+    lines.push('Watch out: ' + names + ' margin is under 50%. Price may be too low or COGS too high.');
+  }
+  const badLTVCAC = Object.entries(r).filter(([_, x]) => x.ltvcac < 1.5 && isFinite(x.ltvcac));
+  if (badLTVCAC.length) {
+    const names = badLTVCAC.map(([k]) => k).join(', ');
+    lines.push('LTV/CAC below 1.5 on: ' + names + '. Acquisition is more expensive than the customer is worth.');
+  }
+  if (lines.length <= 3) {
+    lines.push('All three models hit healthy LTV/CAC. The choice is now about brand and friction, not math.');
+  }
+
+  $('verdict').innerHTML = lines.join(' ');
+}
+
+$('calc-btn').addEventListener('click', calculate);
+['api_cost','infra_cost','processor_fee','byok_price','bundled_price','hybrid_price','churn_rate','cac'].forEach(id => {
+  $(id).addEventListener('input', calculate);
+});
+
+$('example-btn').addEventListener('click', () => {
+  $('api_cost').value = '1.20';
+  $('infra_cost').value = '0.18';
+  $('processor_fee').value = '2.9';
+  $('byok_price').value = '12';
+  $('bundled_price').value = '39';
+  $('hybrid_price').value = '19';
+  $('churn_rate').value = '3.5';
+  $('cac').value = '45';
+  calculate();
+});
+
+$('reset-btn').addEventListener('click', () => {
+  $('api_cost').value = '0.85';
+  $('infra_cost').value = '0.12';
+  $('processor_fee').value = '2.9';
+  $('byok_price').value = '9';
+  $('bundled_price').value = '29';
+  $('hybrid_price').value = '14';
+  $('churn_rate').value = '4';
+  $('cac').value = '35';
+  calculate();
+});
+
+$('theme-toggle').addEventListener('click', () => {
+  const cur = document.body.dataset.theme;
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.body.dataset.theme = next;
+  $('theme-toggle').textContent = next === 'dark' ? 'Light' : 'Dark';
+});
+
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  document.body.dataset.theme = 'dark';
+  $('theme-toggle').textContent = 'Light';
+}
+
+calculate();
+</script>
+</body>
+</html>
