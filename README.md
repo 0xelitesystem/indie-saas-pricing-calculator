@@ -69,6 +69,10 @@ Or open `index.html` locally; everything runs in the browser.
 - [indie-saas-financial-baseline](https://github.com/0xelitesystem/indie-saas-financial-baseline): the markdown reference on indie SaaS money discipline that this calculator implements one section of.
 - [prompt-cost-calculator](https://github.com/0xelitesystem/prompt-cost-calculator): use this to figure out the per-user API cost input.
 
+## More
+
+Part of a catalog of single-file browser tools and plain-language references, all MIT licensed and dependency-free: [0xelitesystem.github.io](https://0xelitesystem.github.io/). Built by [elitesystem.ai](https://elitesystem.ai).
+
 ## License
 
 MIT.
