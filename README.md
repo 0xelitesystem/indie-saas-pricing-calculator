@@ -6,6 +6,8 @@
 
 Side-by-side pricing math for indie SaaS founders deciding between BYOK, bundled, and hybrid pricing. Real margins, real churn-adjusted LTV, real breakeven user counts. Browser-only.
 
+For general information only. This is not financial, tax or legal advice. Check the numbers with a qualified professional before you rely on them.
+
 ## What it does
 
 You're shipping a SaaS that uses an LLM or other paid API. You can charge customers in three ways:

@@ -40,11 +40,12 @@
   --grid-faint: #2a2e22;
   --ink: #f0e6c8;
   --ink-soft: #c8b894;
-  --ink-faint: #8a8268;
+  --ink-faint: #898983;
   --rule: #5a4f30;
   --rule-soft: #4a4128;
   --carmine: #d86060;
   --olive: #94a062;
+  --gold: #ffb454;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -386,7 +387,7 @@ footer a:hover { text-decoration: underline; }
   --gold: #ffb454;
   --grid: #1f1f1d;
   --ink: #e8e8e3;
-  --ink-faint: #6e6e68;
+  --ink-faint: #898983;
   --ink-soft: #a8a8a3;
   --paper: #0a0a0a;
   --paper-2: #161614;
@@ -397,7 +398,7 @@ footer a:hover { text-decoration: underline; }
   --gold: #8a4d00;
   --grid: #c8cdd5;
   --ink: #0a0a0a;
-  --ink-faint: #6e6e68;
+  --ink-faint: #5c5c56;
   --ink-soft: #2a2a27;
   --paper: #e8ebef;
   --paper-2: #d3d7df;
@@ -572,7 +573,8 @@ footer a:hover { text-decoration: underline; }
 
   <footer>
     Built by <a href="https://github.com/0xelitesystem" target="_blank" rel="noopener">0xelitesystem</a> &middot; Pairs with <a href="https://github.com/0xelitesystem/breakeven-runway-calculator" target="_blank" rel="noopener">breakeven-runway-calculator</a> and <a href="https://github.com/0xelitesystem/indie-saas-financial-baseline" target="_blank" rel="noopener">indie-saas-financial-baseline</a>
-   <br>An <a href="https://elitesystem.ai" target="_blank" rel="noopener">elitesystem.ai</a> tool. <a href="https://github.com/0xelitesystem/indie-saas-pricing-calculator" target="_blank" rel="noopener">Source on GitHub</a>. <a href="https://0xelitesystem.github.io/" target="_blank" rel="noopener">More tools</a>. </footer>
+   <br>An <a href="https://elitesystem.ai" target="_blank" rel="noopener">elitesystem.ai</a> tool. <a href="https://github.com/0xelitesystem/indie-saas-pricing-calculator" target="_blank" rel="noopener">Source on GitHub</a>. <a href="https://0xelitesystem.github.io/" target="_blank" rel="noopener">More tools</a>.
+   <br>For general information only. This is not financial, tax or legal advice. Check the numbers with a qualified professional before you rely on them.</footer>
 </div>
 
 <script>
@@ -727,11 +729,8 @@ calculate();
 (function () {
   var KEY = "theme";
   var btn = document.querySelector("#theme-toggle, #theme-btn, .theme-btn, .theme-toggle, [data-theme-toggle]");
-  function host() {
-    if (document.documentElement.hasAttribute("data-theme")) { return document.documentElement; }
-    if (document.body && document.body.hasAttribute("data-theme")) { return document.body; }
-    return document.documentElement;
-  }
+  // This page's own toggle switches <body> while <html> keeps a fixed brand theme, so remember <body>.
+  function host() { return document.body || document.documentElement; }
   function current() { return host().getAttribute("data-theme") || ""; }
   function setter() {
     if (typeof setTheme === "function") { return setTheme; }
