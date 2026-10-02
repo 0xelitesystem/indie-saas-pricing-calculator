@@ -45,11 +45,37 @@ Per pricing model:
 
 Plus a verdict block that names the winner per dimension and flags margins under 50% or LTV/CAC under 1.5x.
 
-## Use it
+## Use
 
 [https://0xelitesystem.github.io/indie-saas-pricing-calculator/](https://0xelitesystem.github.io/indie-saas-pricing-calculator/)
 
 Or open `index.html` locally; everything runs in the browser.
+
+1. Enter your API cost, infrastructure cost, and payment fee per user, or click **Load example: $50K MRR target**.
+2. Enter your BYOK, bundled, and hybrid prices, monthly churn, and CAC.
+3. Click **Calculate**.
+4. Compare margin, LTV, LTV/CAC, and users needed per model, then read the verdict block. **Reset** clears the form.
+
+## Why this exists
+
+Founders building on paid APIs have to choose between BYOK, bundled, and hybrid pricing, and the margin and LTV math differs for each. This tool puts the three models side by side. It is one HTML file with inline CSS and JavaScript: no account, no tracking, no analytics, no external scripts or fonts, and it works offline. MIT licensed, so you can fork it, self-host it, or read every line.
+
+## Privacy
+
+Everything runs in your browser. The numbers you enter are never sent anywhere and are not saved; reload the page and they reset. The only thing written to storage is your light or dark theme choice, saved in localStorage under the key `theme`. No analytics, no cookies, no network requests.
+
+## Run locally
+
+```bash
+git clone https://github.com/0xelitesystem/indie-saas-pricing-calculator
+cd indie-saas-pricing-calculator
+```
+
+Then open `index.html` in any modern browser. Or serve the folder with `python -m http.server 8000` and visit http://localhost:8000.
+
+## Build
+
+No build step. The whole tool is one `index.html` with no dependencies, so there is nothing to install or compile.
 
 ## What this tool does NOT do
 
@@ -61,7 +87,7 @@ Or open `index.html` locally; everything runs in the browser.
 
 ## What's not included
 
-- No localStorage, no cookies, no tracking.
+- No localStorage except the light or dark theme choice, no cookies, no tracking.
 - No third-party scripts.
 - No paywall.
 
