@@ -95,7 +95,7 @@ No build step. The whole tool is one `index.html` with no dependencies, so there
 
 - [breakeven-runway-calculator](https://github.com/0xelitesystem/breakeven-runway-calculator): plug the net-per-user number from this tool into the runway calculator to project breakeven date.
 - [indie-saas-financial-baseline](https://github.com/0xelitesystem/indie-saas-financial-baseline): the markdown reference on indie SaaS money discipline that this calculator implements one section of.
-- [prompt-cost-calculator](https://github.com/0xelitesystem/prompt-cost-calculator): use this to figure out the per-user API cost input.
+- [prompt-cost-across-models](https://github.com/0xelitesystem/prompt-cost-across-models): use this to figure out the per-user API cost input.
 
 ## More
 
